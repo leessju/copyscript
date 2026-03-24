@@ -1,0 +1,185 @@
+/* YouTube Copy 버튼 — YouTube 네이티브 버튼 스타일 일치 */
+.yt-summary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 0 16px;
+  height: 36px;
+  border: none;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'Roboto', Arial, sans-serif;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+.yt-summary-btn:hover { background: rgba(255,255,255,0.2); }
+.yt-summary-btn.loading { opacity: 0.6; pointer-events: none; }
+.yt-summary-btn.loading::after {
+  content: '';
+  width: 14px; height: 14px;
+  border: 2px solid #333;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: yt-spin 0.8s linear infinite;
+}
+@keyframes yt-spin { to { transform: rotate(360deg); } }
+
+/* 모달 오버레이 */
+.yt-summary-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.yt-summary-overlay.show { opacity: 1; }
+
+/* 모달 본체 */
+.yt-summary-modal {
+  width: 80vw;
+  max-width: 1200px;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform 0.2s;
+}
+.yt-summary-overlay.show .yt-summary-modal {
+  transform: translateY(0);
+}
+
+/* 모달 헤더 */
+.yt-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e5e5;
+  flex-shrink: 0;
+}
+.yt-summary-header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+.yt-summary-header-actions {
+  display: flex;
+  gap: 8px;
+}
+.yt-summary-header button {
+  background: #f0f0f0;
+  border: none;
+  color: #555;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.yt-summary-header button:hover { background: #e0e0e0; color: #1a1a1a; }
+.yt-summary-close {
+  background: none !important;
+  font-size: 20px !important;
+  padding: 4px 8px !important;
+  color: #999 !important;
+}
+.yt-summary-close:hover { color: #333 !important; }
+
+/* 모달 바디 */
+.yt-summary-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  color: #333;
+  font-size: 15px;
+  line-height: 1.75;
+  font-family: 'Pretendard', 'Noto Sans KR', -apple-system, sans-serif;
+}
+.yt-summary-body h1 { font-size: 20px; color: #1a1a1a; margin: 24px 0 12px; }
+.yt-summary-body h2 { font-size: 17px; color: #1a1a1a; margin: 20px 0 10px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+.yt-summary-body h3 { font-size: 15px; color: #333; margin: 16px 0 8px; }
+.yt-summary-body ul, .yt-summary-body ol { padding-left: 20px; }
+.yt-summary-body li { margin-bottom: 6px; }
+.yt-summary-body p { margin: 0 0 12px; }
+.yt-summary-body strong { color: #1a1a1a; }
+.yt-summary-body code {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #d63384;
+}
+.yt-summary-body blockquote {
+  border-left: 3px solid #ddd;
+  margin: 12px 0;
+  padding: 8px 16px;
+  color: #666;
+  background: #f9f9f9;
+  border-radius: 0 8px 8px 0;
+}
+.yt-summary-body hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 20px 0;
+}
+
+/* 표 스타일 */
+.yt-summary-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.yt-summary-body th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid #ddd;
+}
+.yt-summary-body td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  color: #444;
+  vertical-align: top;
+}
+.yt-summary-body tr:hover td { background: #fafafa; }
+
+/* 로딩 상태 */
+.yt-summary-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: #888;
+  gap: 16px;
+}
+.yt-summary-loading .spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: yt-spin 0.8s linear infinite;
+}
+
+/* 스크롤바 */
+.yt-summary-body::-webkit-scrollbar { width: 6px; }
+.yt-summary-body::-webkit-scrollbar-track { background: transparent; }
+.yt-summary-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.yt-summary-body::-webkit-scrollbar-thumb:hover { background: #aaa; }

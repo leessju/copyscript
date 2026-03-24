@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "CopyScript — YouTube Transcript Copy",
+  "version": "1.0.0",
+  "description": "One-click YouTube transcript copy. No AI, no ads, no tracking. Just copy.",
+  "permissions": ["activeTab"],
+  "host_permissions": [
+    "https://www.youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["modal.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
