@@ -80,18 +80,23 @@ async function getTranscript() {
   showBtn.click();
 
   // 4. 새 자막 로딩 대기 (최대 15초)
+  // A타입: transcript-segment-view-model
+  // B타입: ytd-transcript-segment-renderer (segments-container 안)
   let segments;
+  let renderType = null;
   for (let i = 0; i < 30; i++) {
     await sleep(500);
     segments = document.querySelectorAll("transcript-segment-view-model");
-    if (segments.length > 0) break;
+    if (segments.length > 0) { renderType = "A"; break; }
+    segments = document.querySelectorAll("ytd-transcript-segment-renderer");
+    if (segments.length > 0) { renderType = "B"; break; }
   }
 
   if (!segments || segments.length === 0) {
     throw new Error("자막이 로드되지 않았습니다.");
   }
 
-  const text = extractFromDOM(segments);
+  const text = extractFromDOM(segments, renderType);
 
   // 캐시 저장
   transcriptCache[videoId] = text;
@@ -152,17 +157,49 @@ function findTranscriptButton() {
   return null;
 }
 
-function extractFromDOM(segments) {
+function extractFromDOM(segments, renderType) {
   const lines = [];
-  for (const seg of segments) {
-    const ts = seg.querySelector(".ytwTranscriptSegmentViewModelTimestamp")
-      ?.textContent?.trim() || "";
-    const text = seg.querySelector("span.yt-core-attributed-string")
-      ?.textContent?.trim() || "";
-    if (text) {
-      lines.push(ts ? "[" + ts + "] " + text : text);
+
+  if (renderType === "B") {
+    // B타입: ytd-transcript-segment-renderer
+    // 섹션 헤더 + 세그먼트를 순서대로 수집
+    const container = document.querySelector("#segments-container");
+    if (container) {
+      const allNodes = container.querySelectorAll(
+        "ytd-transcript-section-header-renderer, ytd-transcript-segment-renderer"
+      );
+      for (const node of allNodes) {
+        if (node.tagName.toLowerCase() === "ytd-transcript-section-header-renderer") {
+          const title = node.querySelector("h2 span.yt-core-attributed-string, h2")
+            ?.textContent?.trim() || "";
+          if (title) lines.push("\n### " + title);
+        } else {
+          const ts = node.querySelector(".segment-timestamp")
+            ?.textContent?.trim() || "";
+          const text = node.querySelector("yt-formatted-string.segment-text")
+            ?.textContent?.trim() || "";
+          if (text) lines.push(ts ? "[" + ts + "] " + text : text);
+        }
+      }
+      if (lines.length > 0) return lines.join("\n").trim();
+    }
+    // container 못 찾으면 segments 직접 처리
+    for (const seg of segments) {
+      const ts = seg.querySelector(".segment-timestamp")?.textContent?.trim() || "";
+      const text = seg.querySelector("yt-formatted-string.segment-text")?.textContent?.trim() || "";
+      if (text) lines.push(ts ? "[" + ts + "] " + text : text);
+    }
+  } else {
+    // A타입: transcript-segment-view-model
+    for (const seg of segments) {
+      const ts = seg.querySelector(".ytwTranscriptSegmentViewModelTimestamp")
+        ?.textContent?.trim() || "";
+      const text = seg.querySelector("span.yt-core-attributed-string")
+        ?.textContent?.trim() || "";
+      if (text) lines.push(ts ? "[" + ts + "] " + text : text);
     }
   }
+
   return lines.join("\n");
 }
 
@@ -202,12 +239,19 @@ function insertButton() {
 
   if (document.getElementById("yt-copy-trigger")) return;
 
-  const flexBar = document.querySelector("#flexible-item-buttons");
-  const topBar = document.querySelector("#top-level-buttons-computed");
-  const actionsBar =
-    (flexBar && flexBar.children.length > 0) ? flexBar :
-    (topBar && topBar.children.length > 0) ? topBar :
-    null;
+  // YouTube 레이아웃 변경에 대비한 다중 셀렉터
+  const candidates = [
+    "#flexible-item-buttons",
+    "#top-level-buttons-computed",
+    "ytd-menu-renderer.ytd-watch-metadata #top-level-buttons-computed",
+    "#actions-inner #menu #top-level-buttons-computed",
+    "#actions ytd-menu-renderer"
+  ];
+  let actionsBar = null;
+  for (const sel of candidates) {
+    const el = document.querySelector(sel);
+    if (el && el.children.length > 0) { actionsBar = el; break; }
+  }
 
   if (!actionsBar) return;
 
